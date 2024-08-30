@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anime Season Network</title>
+    <style>
+        body {
+            font-family: "Trebuchet MS", Verdana, Arial, sans-serif;
+            font-size: 16px;
+            background: #2c2c2c;
+            color: #ffffff;
+        }
+        .lineage-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+        .anime-lineage {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        .anime-element {
+            position: relative;
+            padding: 10px;
+            border: 5px solid #ffffff49;
+            border-radius: 5px;
+            background: #444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .anime-element ul p {
+            margin-right: 20px;
+            margin-bottom: 10px;
+            margin-left: -20px;
+            padding: 30px;
+            background: rgba(50, 50, 50, 0.4);
+            border-radius: 10px;
+        }
+        .anime-element ul {
+            font-size: 20px;
+        }
+        .anime-element img {
+            position: relative;
+            margin: 20px;
+            margin-top: 30px;
+            border: 20px solid rgba(50, 50, 50, 0.4); 
+            border-radius: 25px;
+        }
+        .anime-element h3 a {
+            font-weight: bold;
+            color:#ffffff;
+            text-decoration: none;
+        }
+        .anime-element h3 a:hover {
+            font-weight: bold;
+            color:#615dd6;
+            text-decoration: none;
+        }
+        .anime-green {
+            background: #4caf4fcf;
+        }
+        .anime-yellow {
+            background: #ffc107c5;
+        }
+        .anime-orange {
+            background: #FF9800;
+        }
+        .anime-red {
+            background: #f44336c3;
+        }
+        
+        .anime-element:hover .anime-info {
+            display: block;
+        }
+        .anime-element:hover .anime-info a  {
+            display: block;
+        }
+        .sub {
+            border: none;
+            width: 100px;
+            height: 30px;
+        }
+        .anime-element.no-color{
+            background: #666;
+        }
+        .sub:hover {
+            width: 100px;
+            height: 30px;
+        }
+        .anime-info a {
+            display: none;
+            position: relative;
+            color: rgb(218, 220, 255);
+            text-decoration: none;
+            top: 100px;
+            left: 0;
+            font-weight: normal;
+        }
+        .anime-info {
+            display: none;
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 400px;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #2c2c2c;
+            color: #fff;
+            z-index: 1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: auto;
+            font-weight: normal;
+        }
+        .anime-element div {
+            margin-top: 20px;
+        }
+        .anime-element a {
+            position: absolut;
+            margin-top: 20px;
+        }
+        #synopsis {
+            position: relative;
+            width: auto;
+            height: 130px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-top: 500px;
+            background: rgb(50,50,50,0.5);
+        }
+    </style>
+    <script type="module">
+        // Make single fetch function, with fetch path as parameter
+        async function fetchLineageData() {
+            const response = await fetch('/lineage_data');
+            const lineageData = await response.json();
+            console.log(lineageData);
+            return lineageData;
+        }
+
+        async function fetchAnimes() {
+            const response = await fetch('/animes');
+            const animeData = await response.json();
+            console.log(animeData['49785']);
+            return animeData;
+        }
+
+        async function fetchUserListAnimes() {
+            const response = await fetch('/user_animes');
+            const animeIds = await response.json();
+            console.log("USER ANIME LIST", animeIds.includes(49785));
+            return animeIds;
+        }
+
+        async function fetchRefreshedAnimeInfo() {
+            await fetch('/refresh_user_list_status');
+        }
+
+        async function buildRefreshButton() {
+            const button = document.createElement('button');
+            button.id = 'refresh-button';
+            button.textContent = 'REFRESH ANIME USER INFORMATION';
+            button.addEventListener('click', async () => {
+                await fetchRefreshedAnimeInfo();
+            });
+            document.body.appendChild(button);
+        }
+
+        function buildExpandedBoxAnimeInfoElements(animeObj, element, colorClass) {            
+            try {
+                const watchStatus = document.createElement('ul');
+                if (animeObj.my_list_status['status'] != undefined) {
+                    watchStatus.innerText = '•  USER STATUS: '+animeObj.my_list_status['status'].replace('_', ' ').toUpperCase();
+                } else {
+                    watchStatus.innerText = '•  USER STATUS: None';
+                }
+                element.appendChild(watchStatus);
+            } catch(TypeError) {
+                ;
+            }
+
+            const animeAiringStatus = document.createElement('ul');
+            if (animeObj.status === 'finished_airing') {               
+                animeAiringStatus.innerText = '•  AIRING STATUS: '+animeObj.status.replace('_', ' ').toUpperCase()+' in '+animeObj.start_season['year'] + ', '+animeObj.start_season['season'].toUpperCase();
+            } else if (animeObj.status === "not_yet_aired") {
+                animeAiringStatus.innerText = '•  AIRING STATUS: Not yet aired'
+            }
+            element.appendChild(animeAiringStatus);
+
+
+            const animeImage = document.createElement('img');
+            animeImage.id = animeObj.id + "-image";
+            animeImage.src = animeObj.main_picture['large'];
+            animeImage.alt = "Cover image from the anime: "+ animeObj.title;
+            animeImage.style.display = "None";
+            element.appendChild(animeImage);
+
+            
+            const descriptionContainer = document.createElement('ul');
+            const animeDescription = document.createElement('p');
+            animeDescription.id = animeObj.id + "-description";
+            animeDescription.textContent = `SYNOPSIS: \n${animeObj.synopsis}`;
+            animeDescription.style.display = "none";
+            descriptionContainer.appendChild(animeDescription);
+            element.appendChild(descriptionContainer);
+            return element;
+        }
+
+        function tryGetEnglishTitles(animeObj) {
+                try {
+                    if (animeObj.alternative_titles['en'] !== undefined && animeObj.alternative_titles['en'] !== null) {
+                        if (animeObj.alternative_titles['en'].length >= 1) {
+                            return animeObj.alternative_titles['en'];
+                        } else {
+                            return animeObj.title;
+                        }
+                    }
+                } catch (e) {
+                    return animeObj.title;
+                }
+            }
+
+        function buildAnimeHeading(animeObj) {            
+            const titleHeading = document.createElement('h3');
+            const malLinkElement = document.createElement('a');
+            malLinkElement.innerText = tryGetEnglishTitles(animeObj);
+            
+            try {
+                if (animeObj.my_list_status != undefined && animeObj.my_list_status != null) {
+                    malLinkElement.innerText = tryGetEnglishTitles(animeObj);
+                    if (parseInt(animeObj.my_list_status['score']) !== 0) {
+                        malLinkElement.innerText = tryGetEnglishTitles(animeObj) + " ("+animeObj.my_list_status['score']+")";
+                    }
+                }
+            } catch (e) {
+                ;
+            }
+
+            malLinkElement.href = animeObj.mal_url;
+            titleHeading.appendChild(malLinkElement);
+            return titleHeading
+        } 
+
+        function buildAnimeLineageElement(animeObj, colorClass) {
+            var element = document.createElement('div');
+            element.id = animeObj.id;
+            element.className = `anime-element ${colorClass}`;
+
+            let heading = buildAnimeHeading(animeObj);
+            element.appendChild(heading);
+            element = buildExpandedBoxAnimeInfoElements(animeObj, element, colorClass);
+
+
+            const boxHeight = '80px';
+
+            element.onclick = function() {
+                var animeElement = document.getElementById(element.id);
+                var animeImage = document.getElementById(animeElement.id+"-image")
+                var animeDescription = document.getElementById(animeElement.id+"-description")
+
+                if (animeElement.style.height === boxHeight || animeElement.style.width === undefined) {
+                    animeElement.style.width = '600px';
+                    animeElement.style.height = 'auto';
+                    animeElement.style.overflow = "auto";
+                    animeImage.style.display = "flex";
+                    animeDescription.style.display = "flex";
+
+                } else {
+                    animeElement.style.width = 'auto';
+                    animeElement.style.height = boxHeight;
+                    animeElement.style.overflow = "hidden";
+                    animeImage.style.display = "none";
+                    animeDescription.style.display = "none";
+                }
+            }
+            element.style.width = 'auto';
+            element.style.height = boxHeight;
+            element.style.overflow = "hidden";
+            return element;
+        }
+
+        function cycleThroughLineages(originAnimeId, animeLineageList, animeData, userListIds) {
+            const lineageContainer = document.getElementById('lineage');
+            const lineageDiv = document.createElement('div');
+            lineageDiv.className = 'anime-lineage';
+
+            const originAnimeObj = animeData[originAnimeId];
+
+            const colors = ['anime-green', 'anime-yellow', 'anime-orange', 'anime-red'];
+            animeLineageList.forEach((lineageAnimeId) => {
+                var colorClass = null;
+                const lineageAnimeObj = animeData[lineageAnimeId];
+                
+                try {
+                    if (lineageAnimeObj.my_list_status['status'] === 'completed') {//&& userListIds(lineageAnimeObj.id)
+                        colorClass = colors[0];
+                    } else if (lineageAnimeObj.my_list_status['status'] === 'watching') {
+                        colorClass = colors[1];
+                    } else if (lineageAnimeObj.my_list_status['status'] === 'plan_to_watch') {
+                        colorClass = colors[1];
+                    }
+                } catch(e) {
+                    colorClass = colors[3];
+                }
+                
+                var anime_element = buildAnimeLineageElement(lineageAnimeObj, colorClass)
+                lineageDiv.appendChild(anime_element);
+            });
+
+            lineageContainer.appendChild(lineageDiv);
+        }
+
+        async function parseAnimeData(lineageData) {
+            var animeData = await fetchAnimes();
+
+            var userListIds = await fetchUserListAnimes();
+            for (const originAnimeId in lineageData) {
+                const animeLineageList = lineageData[originAnimeId];
+                cycleThroughLineages(originAnimeId, animeLineageList, animeData, userListIds);
+            }
+        }
+
+        window.onload = async function() {
+            await fetchRefreshedAnimeInfo();
+            const lineageData = await fetchLineageData();
+            await parseAnimeData(lineageData);
+        }
+    </script>
+</head>
+<body>
+    <h1>Anime Season Network</h1>
+    <div id="lineage" class="lineage-container"></div>
+</body>
+</html>

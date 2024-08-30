@@ -1,0 +1,3 @@
+src/*.json
+animes/*.json
+__pycache__

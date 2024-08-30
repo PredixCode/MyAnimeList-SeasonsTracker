@@ -1,0 +1,113 @@
+body {
+    font-family: "Trebuchet MS", Verdana, Arial, sans-serif;
+    font-size: 16px;
+    background: #2c2c2c;
+    color: #ffffff;
+}
+.lineage-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+.anime-lineage {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.anime-element {
+    position: relative;
+    padding: 10px;
+    border: 5px solid #ffffff49;
+    border-radius: 5px;
+    background: #444;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: auto;
+    height: 65px;
+    height: 80px;
+    overflow: hidden;
+}
+.anime-element h3 a {
+    font-weight: bold;
+    color:#ffffff;
+    text-decoration: none;
+}
+.anime-element h3 a:hover {
+    font-weight: bold;
+    color:#615dd6;
+    text-decoration: none;
+}
+.anime-green {
+    background: #4caf4fcf;
+}
+.anime-yellow {
+    background: #ffc107c5;
+}
+.anime-orange {
+    background: #FF9800;
+}
+.anime-red {
+    background: #f44336c3;
+}
+
+.anime-element:hover .anime-info {
+    display: block;
+}
+.anime-element:hover .anime-info a  {
+    display: block;
+}
+.sub {
+    border: none;
+    width: 100px;
+    height: 30px;
+}
+.anime-element.no-color{
+    background: #666;
+}
+.sub:hover {
+    width: 100px;
+    height: 30px;
+}
+.anime-info a {
+    display: none;
+    position: relative;
+    color: rgb(218, 220, 255);
+    text-decoration: none;
+    top: 100px;
+    left: 0;
+    font-weight: normal;
+}
+.anime-info {
+    display: none;
+    position: absolute;
+    top: 100px;
+    left: 50px;
+    width: 400px;
+    height: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #2c2c2c;
+    color: #fff;
+    z-index: 1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    font-weight: normal;
+}
+.anime-element div {
+    margin-top: 20px;
+}
+.anime-element a {
+    position: absolut;
+    margin-top: 20px;
+}
+#synopsis {
+    position: relative;
+    width: auto;
+    height: 130px;
+    overflow-y: auto;
+    padding: 20px;
+    margin-top: 500px;
+    background: rgb(50,50,50,0.5);
+}
